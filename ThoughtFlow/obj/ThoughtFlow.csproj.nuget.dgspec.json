@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Keth\\Documents\\Thought Flow\\ThoughtFlow\\ThoughtFlow.csproj": {}
+    "C:\\Users\\Keth\\Documents\\Thought Flow\\ThoughtFlow\\Thought-Flow\\ThoughtFlow\\ThoughtFlow.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Keth\\Documents\\Thought Flow\\ThoughtFlow\\ThoughtFlow.csproj": {
+    "C:\\Users\\Keth\\Documents\\Thought Flow\\ThoughtFlow\\Thought-Flow\\ThoughtFlow\\ThoughtFlow.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Keth\\Documents\\Thought Flow\\ThoughtFlow\\ThoughtFlow.csproj",
+        "projectUniqueName": "C:\\Users\\Keth\\Documents\\Thought Flow\\ThoughtFlow\\Thought-Flow\\ThoughtFlow\\ThoughtFlow.csproj",
         "projectName": "ThoughtFlow",
-        "projectPath": "C:\\Users\\Keth\\Documents\\Thought Flow\\ThoughtFlow\\ThoughtFlow.csproj",
+        "projectPath": "C:\\Users\\Keth\\Documents\\Thought Flow\\ThoughtFlow\\Thought-Flow\\ThoughtFlow\\ThoughtFlow.csproj",
         "packagesPath": "C:\\Users\\Keth\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Keth\\Documents\\Thought Flow\\ThoughtFlow\\obj\\",
+        "outputPath": "C:\\Users\\Keth\\Documents\\Thought Flow\\ThoughtFlow\\Thought-Flow\\ThoughtFlow\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

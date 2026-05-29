@@ -12,6 +12,21 @@
   <ItemGroup>
     <None Remove="Assets\ThoughtFlowIcon.ico" />
     <Resource Include="Assets\ThoughtFlowIcon.ico" />
+    <None Remove="Assets\GearIcon.png" />
+    <Resource Include="Assets\GearIcon.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Thought-Flow\**\*" />
+    <Page Remove="Thought-Flow\**\*" />
+    <ApplicationDefinition Remove="Thought-Flow\**\*" />
+    <None Remove="Thought-Flow\**\*" />
+    <Resource Remove="Thought-Flow\**\*" />
+    <Compile Remove="Thought Flow\**\*" />
+    <Page Remove="Thought Flow\**\*" />
+    <ApplicationDefinition Remove="Thought Flow\**\*" />
+    <None Remove="Thought Flow\**\*" />
+    <Resource Remove="Thought Flow\**\*" />
   </ItemGroup>
 
 </Project>
