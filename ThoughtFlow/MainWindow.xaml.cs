@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Win32;
@@ -10,6 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -18,6 +20,8 @@ namespace ThoughtFlow;
 
 public partial class MainWindow : Window
 {
+    private const int WmGetMinMaxInfo = 0x0024;
+    private const int MonitorDefaultToNearest = 0x00000002;
     private static readonly Color DefaultInkColor = Color.FromRgb(35, 35, 35);
     private static readonly Color DefaultMarkColor = Color.FromRgb(216, 180, 254);
     private static readonly Color SpoilerHiddenColor = Color.FromRgb(49, 49, 54);
@@ -143,6 +147,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        SourceInitialized += MainWindow_SourceInitialized;
         ApplyContextMenuStyle(MessageStreamBox.ContextMenu);
         ApplyContextMenuStyle(MessageActionsButton.ContextMenu);
         StoragePathText.Text = _storage.DisplayPath;
@@ -152,6 +157,92 @@ public partial class MainWindow : Window
         ChannelsList.ItemsSource = _channels;
         FilesList.ItemsSource = _files;
         ChannelsList.SelectedIndex = 0;
+    }
+
+    private void MainWindow_SourceInitialized(object? sender, EventArgs e)
+    {
+        if (PresentationSource.FromVisual(this) is HwndSource source)
+        {
+            source.AddHook(WindowProc);
+        }
+    }
+
+    private static IntPtr WindowProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+    {
+        if (msg != WmGetMinMaxInfo)
+        {
+            return IntPtr.Zero;
+        }
+
+        var monitor = MonitorFromWindow(hwnd, MonitorDefaultToNearest);
+        if (monitor == IntPtr.Zero)
+        {
+            return IntPtr.Zero;
+        }
+
+        var monitorInfo = new MonitorInfo
+        {
+            Size = Marshal.SizeOf<MonitorInfo>()
+        };
+
+        if (!GetMonitorInfo(monitor, ref monitorInfo))
+        {
+            return IntPtr.Zero;
+        }
+
+        var minMaxInfo = Marshal.PtrToStructure<MinMaxInfo>(lParam);
+        var workArea = monitorInfo.WorkArea;
+        var monitorArea = monitorInfo.MonitorArea;
+
+        minMaxInfo.MaxPosition.X = workArea.Left - monitorArea.Left;
+        minMaxInfo.MaxPosition.Y = workArea.Top - monitorArea.Top;
+        minMaxInfo.MaxSize.X = workArea.Right - workArea.Left;
+        minMaxInfo.MaxSize.Y = workArea.Bottom - workArea.Top;
+
+        Marshal.StructureToPtr(minMaxInfo, lParam, true);
+        handled = true;
+        return IntPtr.Zero;
+    }
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr MonitorFromWindow(IntPtr hwnd, int flags);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool GetMonitorInfo(IntPtr monitor, ref MonitorInfo monitorInfo);
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct PointInfo
+    {
+        public int X;
+        public int Y;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct MinMaxInfo
+    {
+        public PointInfo Reserved;
+        public PointInfo MaxSize;
+        public PointInfo MaxPosition;
+        public PointInfo MinTrackSize;
+        public PointInfo MaxTrackSize;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct MonitorInfo
+    {
+        public int Size;
+        public RectInfo MonitorArea;
+        public RectInfo WorkArea;
+        public int Flags;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct RectInfo
+    {
+        public int Left;
+        public int Top;
+        public int Right;
+        public int Bottom;
     }
 
     private void LoadLibrary()

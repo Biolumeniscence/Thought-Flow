@@ -6,7 +6,7 @@
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         mc:Ignorable="d"
         Title="Thought Flow" Icon="Assets/ThoughtFlowIcon.ico"
-        Height="790" MinHeight="650" Width="1280" MinWidth="1080"
+        Height="900" MinHeight="650" Width="1400" MinWidth="1080"
         WindowStyle="None" ResizeMode="CanResize"
         Background="{DynamicResource AppBackground}" FontFamily="Segoe UI"
         Closing="Window_Closing"
@@ -465,7 +465,7 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button x:Name="DuplicateMessageButton" Content="Duplicate msg" Style="{StaticResource GhostButton}" Width="118" Margin="0,0,8,0" Click="DuplicateButton_Click"/>
-                    <Button x:Name="DeleteWorkspaceButton" Content="Delete workspace" Background="{DynamicResource Warm}" Width="136" Click="DeleteChannelButton_Click"/>
+                    <Button x:Name="DeleteWorkspaceButton" Content="Delete workspace" Background="{DynamicResource Warm}" Width="166" Click="DeleteChannelButton_Click"/>
                 </StackPanel>
             </DockPanel>
 
@@ -479,7 +479,7 @@
                     <StackPanel>
                         <DockPanel Margin="0,0,0,8">
                             <TextBlock x:Name="FilesLabel" Text="Files" Foreground="{DynamicResource MutedInk}" FontSize="12" FontWeight="SemiBold"/>
-                            <Button x:Name="DeleteFileButton" Content="Delete file" DockPanel.Dock="Right" Width="92" MinHeight="28" Padding="8,4" Background="{DynamicResource Warm}" Click="DeleteFileButton_Click"/>
+                            <Button x:Name="DeleteFileButton" Content="Delete file" DockPanel.Dock="Right" Width="116" MinHeight="28" Padding="8,4" Background="{DynamicResource Warm}" Click="DeleteFileButton_Click"/>
                         </DockPanel>
                         <ListBox x:Name="FilesList"
                                  MinHeight="48"
