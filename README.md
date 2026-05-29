@@ -9,9 +9,10 @@ Run RunThoughtFlow.bat
 ## Current Features
 
 - Workspaces in the left sidebar.
+- Custom app/window icon.
 - Text files inside each workspace.
-- Choose a folder location when creating a workspace.
-- Workspace files are synced to that folder as `.md` files.
+- Choose where to create a workspace folder.
+- Each workspace is its own folder, and its text files are synced inside it as `.md` files.
 - Continuous message stream in the center.
 - Hover a message in the stream to see which chunk will open in the editor.
 - Use the hover `...` menu to edit or delete a specific message.
@@ -28,6 +29,7 @@ Run RunThoughtFlow.bat
 - Search messages inside the active file.
 - Duplicate, copy, delete, and save messages.
 - Mark selected editor text with a background color chosen from the palette.
+- Marked editor text is also visible in the main message stream.
 - Render `""bold text""` as bold in the message stream while keeping the raw markup editable.
 - Render `<<italic text>>`, `__underlined text__`, `~~struck text~~`, and `` `inline code` `` in the message stream.
 - Render `||spoiler text||` as a click-to-reveal spoiler in the message stream while keeping the raw markup editable.

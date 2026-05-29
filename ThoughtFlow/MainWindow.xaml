@@ -4,7 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Thought Flow" Height="790" MinHeight="650" Width="1280" MinWidth="1080"
+        Title="Thought Flow" Icon="Assets/ThoughtFlowIcon.ico"
+        Height="790" MinHeight="650" Width="1280" MinWidth="1080"
         Background="#F3F0EA" FontFamily="Segoe UI"
         Closing="Window_Closing">
     <Window.Resources>

@@ -197,6 +197,14 @@ public partial class MainWindow : Window
         return firstError;
     }
 
+    private static string CreateWorkspaceFolder(string parentFolder, string workspaceName, IEnumerable<string> reservedWorkspaceNames, out string actualName)
+    {
+        Directory.CreateDirectory(parentFolder);
+        var folderPath = MakeAvailableWorkspaceFolderPath(parentFolder, workspaceName, reservedWorkspaceNames, null, out actualName);
+        Directory.CreateDirectory(folderPath);
+        return folderPath;
+    }
+
     private static string BuildWorkspaceFileText(FlowTextFile file)
     {
         return string.Join(Environment.NewLine + Environment.NewLine, file.Messages.Select(message => message.Body));
@@ -218,6 +226,54 @@ public partial class MainWindow : Window
         }
 
         return candidate;
+    }
+
+    private static string MakeAvailableWorkspaceFolderPath(
+        string parentFolder,
+        string workspaceName,
+        IEnumerable<string> reservedWorkspaceNames,
+        string? currentPath,
+        out string actualName)
+    {
+        var baseName = MakeSafeFolderName(workspaceName);
+        var reserved = reservedWorkspaceNames.ToHashSet(StringComparer.CurrentCultureIgnoreCase);
+        var candidateName = baseName;
+
+        for (var i = 2; ; i++)
+        {
+            var candidatePath = Path.Combine(parentFolder, candidateName);
+            var isCurrentPath = currentPath is not null && IsSamePath(candidatePath, currentPath);
+            if ((isCurrentPath || (!Directory.Exists(candidatePath) && !File.Exists(candidatePath))) &&
+                (isCurrentPath || !reserved.Contains(candidateName)))
+            {
+                actualName = candidateName;
+                return candidatePath;
+            }
+
+            candidateName = $"{baseName}-{i}";
+        }
+    }
+
+    private static string MakeSafeFolderName(string value)
+    {
+        var invalid = Path.GetInvalidFileNameChars().ToHashSet();
+        var safe = string.Concat(value.Select(character => invalid.Contains(character) ? '-' : character)).Trim();
+        return string.IsNullOrWhiteSpace(safe) ? "untitled" : safe;
+    }
+
+    private static bool IsSamePath(string left, string right)
+    {
+        try
+        {
+            return string.Equals(
+                Path.GetFullPath(left).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar),
+                Path.GetFullPath(right).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar),
+                StringComparison.OrdinalIgnoreCase);
+        }
+        catch
+        {
+            return string.Equals(left, right, StringComparison.OrdinalIgnoreCase);
+        }
     }
 
     private void ChannelsList_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
@@ -1139,6 +1195,7 @@ public partial class MainWindow : Window
         var brush = color is null ? Brushes.Transparent : new SolidColorBrush(color.Value);
         EditorBox.Selection.ApplyPropertyValue(TextElement.BackgroundProperty, brush);
         _hasUnsavedEditorText = true;
+        SaveEditorIfDirty();
         EditorStateText.Text = stateText;
     }
 
@@ -1270,19 +1327,19 @@ public partial class MainWindow : Window
 
     private void AddChannelFromInput()
     {
-        var name = NormalizeWorkspaceName(NewChannelBox.Text);
-        if (string.IsNullOrWhiteSpace(name))
+        var requestedName = NormalizeWorkspaceName(NewChannelBox.Text);
+        if (string.IsNullOrWhiteSpace(requestedName))
         {
             return;
         }
 
-        var location = ChooseWorkspaceLocation(name);
+        var location = ChooseWorkspaceLocation(requestedName, out var actualName);
         if (location is null)
         {
             return;
         }
 
-        var channel = new FlowChannel { Name = name, LocationPath = location };
+        var channel = new FlowChannel { Name = actualName, LocationPath = location };
         channel.Files.Add(new FlowTextFile { Name = "main" });
         AttachChannel(channel);
         _channels.Add(channel);
@@ -1291,11 +1348,12 @@ public partial class MainWindow : Window
         SaveLibrary();
     }
 
-    private string? ChooseWorkspaceLocation(string workspaceName)
+    private string? ChooseWorkspaceLocation(string workspaceName, out string actualName)
     {
+        actualName = workspaceName;
         var dialog = new OpenFolderDialog
         {
-            Title = $"Choose a folder for workspace \"{workspaceName}\"",
+            Title = $"Choose where to create workspace folder \"{workspaceName}\"",
             Multiselect = false
         };
 
@@ -1304,8 +1362,7 @@ public partial class MainWindow : Window
             return null;
         }
 
-        Directory.CreateDirectory(dialog.FolderName);
-        return dialog.FolderName;
+        return CreateWorkspaceFolder(dialog.FolderName, workspaceName, _channels.Select(channel => channel.Name), out actualName);
     }
 
     private static string NormalizeWorkspaceName(string value)
@@ -1371,21 +1428,82 @@ public partial class MainWindow : Window
             return;
         }
 
-        workspace.Name = normalized;
+        var location = MoveWorkspaceFolderForRename(workspace, normalized, out var actualName, out var moveError);
+        workspace.Name = actualName;
+        if (location is not null)
+        {
+            workspace.LocationPath = location;
+        }
+
         RefreshHeader();
         SaveLibrary();
+        if (moveError is not null)
+        {
+            SaveStatusText.Text = $"Workspace renamed, folder stayed put: {moveError}";
+        }
+    }
+
+    private string? MoveWorkspaceFolderForRename(
+        FlowChannel workspace,
+        string requestedName,
+        out string actualName,
+        out string? moveError)
+    {
+        actualName = requestedName;
+        moveError = null;
+
+        if (string.IsNullOrWhiteSpace(workspace.LocationPath))
+        {
+            return null;
+        }
+
+        var currentPath = workspace.LocationPath;
+        var parentFolder = Directory.GetParent(currentPath)?.FullName;
+        if (string.IsNullOrWhiteSpace(parentFolder))
+        {
+            return currentPath;
+        }
+
+        try
+        {
+            Directory.CreateDirectory(parentFolder);
+            var reservedNames = _channels
+                .Where(channel => !ReferenceEquals(channel, workspace))
+                .Select(channel => channel.Name);
+            var nextPath = MakeAvailableWorkspaceFolderPath(parentFolder, requestedName, reservedNames, currentPath, out actualName);
+            if (IsSamePath(currentPath, nextPath))
+            {
+                return currentPath;
+            }
+
+            if (Directory.Exists(currentPath))
+            {
+                Directory.Move(currentPath, nextPath);
+            }
+            else
+            {
+                Directory.CreateDirectory(nextPath);
+            }
+
+            return nextPath;
+        }
+        catch (Exception ex)
+        {
+            moveError = ex.Message;
+            return currentPath;
+        }
     }
 
     private void DuplicateWorkspace(FlowChannel workspace)
     {
         var duplicateName = MakeUniqueWorkspaceName($"{workspace.Name}-copy");
-        var location = ChooseWorkspaceLocation(duplicateName);
+        var location = ChooseWorkspaceLocation(duplicateName, out var actualName);
         if (location is null)
         {
             return;
         }
 
-        var duplicate = CloneWorkspace(workspace, duplicateName, location);
+        var duplicate = CloneWorkspace(workspace, actualName, location);
         AttachChannel(duplicate);
 
         var index = _channels.IndexOf(workspace);

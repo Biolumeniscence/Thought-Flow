@@ -6,6 +6,12 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>Assets\ThoughtFlowIcon.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\ThoughtFlowIcon.ico" />
+    <Resource Include="Assets\ThoughtFlowIcon.ico" />
+  </ItemGroup>
 
 </Project>
