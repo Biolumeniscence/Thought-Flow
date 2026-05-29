@@ -69,6 +69,7 @@ public partial class MainWindow
         EditorStateText.Text = L("Saved", "Сохранено", "Gespeichert");
         EditorBox.IsEnabled = true;
         EditorBox.Document = CreateDocument(_activeMessage);
+        NormalizeDocumentMarkerColors(EditorBox.Document, forStorage: false);
         _isLoadingEditor = false;
     }
 
@@ -81,7 +82,64 @@ public partial class MainWindow
 
     private string SerializeEditorDocument()
     {
-        return XamlWriter.Save(EditorBox.Document);
+        NormalizeDocumentMarkerColors(EditorBox.Document, forStorage: true);
+        var xaml = XamlWriter.Save(EditorBox.Document);
+        NormalizeDocumentMarkerColors(EditorBox.Document, forStorage: false);
+        return xaml;
+    }
+
+    private void NormalizeDocumentMarkerColors(FlowDocument document, bool forStorage)
+    {
+        var documentBackground = document.Background;
+        NormalizeBrush(ref documentBackground, forStorage);
+        document.Background = documentBackground;
+
+        foreach (var block in document.Blocks)
+        {
+            NormalizeBlockMarkerColors(block, forStorage);
+        }
+    }
+
+    private void NormalizeBlockMarkerColors(Block block, bool forStorage)
+    {
+        var background = block.Background;
+        NormalizeBrush(ref background, forStorage);
+        block.Background = background;
+
+        if (block is Paragraph paragraph)
+        {
+            foreach (var inline in paragraph.Inlines)
+            {
+                NormalizeInlineMarkerColors(inline, forStorage);
+            }
+        }
+    }
+
+    private void NormalizeInlineMarkerColors(Inline inline, bool forStorage)
+    {
+        var background = inline.Background;
+        NormalizeBrush(ref background, forStorage);
+        inline.Background = background;
+
+        if (inline is Span span)
+        {
+            foreach (var child in span.Inlines)
+            {
+                NormalizeInlineMarkerColors(child, forStorage);
+            }
+        }
+    }
+
+    private void NormalizeBrush(ref Brush? brush, bool forStorage)
+    {
+        if (!TryGetMarkColor(brush, out var color))
+        {
+            return;
+        }
+
+        var storageColor = MarkerPalette.ToStorageColor(color);
+        var displayColor = forStorage ? storageColor : GetMarkerDisplayColor(storageColor);
+        brush = new SolidColorBrush(displayColor);
     }
 
     private static FlowDocument CreateDocument(FlowMessage message)

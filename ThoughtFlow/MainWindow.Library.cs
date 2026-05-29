@@ -168,6 +168,10 @@ public partial class MainWindow
         SetBrush("WorkspaceSelectedText", theme.WorkspaceSelectedText);
         SetBrush("FileHoverBorder", theme.FileHoverBorder);
         Background = new SolidColorBrush(theme.Background);
+        var wasLoadingEditor = _isLoadingEditor;
+        _isLoadingEditor = true;
+        NormalizeDocumentMarkerColors(EditorBox.Document, forStorage: false);
+        _isLoadingEditor = wasLoadingEditor;
         RefreshMessages();
     }
 
@@ -201,8 +205,33 @@ public partial class MainWindow
         if (ColorConverter.ConvertFromString(_settings.DefaultMarkerColor) is Color color)
         {
             _selectedMarkColor = color;
-            MarkColorSwatch.Background = new SolidColorBrush(color);
+            MarkColorSwatch.Background = new SolidColorBrush(GetMarkerDisplayColor(color));
         }
+    }
+
+    private bool UsesMutedMarkerColors()
+    {
+        return GetBrightness(_currentTheme.Input) < 0.45;
+    }
+
+    private Color GetMarkerDisplayColor(Color color)
+    {
+        return MarkerPalette.ToDisplayColor(color, UsesMutedMarkerColors());
+    }
+
+    private static double GetBrightness(Color color)
+    {
+        static double Linearize(byte channel)
+        {
+            var normalized = channel / 255d;
+            return normalized <= 0.03928
+                ? normalized / 12.92
+                : Math.Pow((normalized + 0.055) / 1.055, 2.4);
+        }
+
+        return 0.2126 * Linearize(color.R) +
+               0.7152 * Linearize(color.G) +
+               0.0722 * Linearize(color.B);
     }
 
     private void ApplyLanguage()

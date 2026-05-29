@@ -388,7 +388,7 @@ public partial class MainWindow
             return;
         }
 
-        marks.Add(new TextMark(start, start + length, color));
+        marks.Add(new TextMark(start, start + length, MarkerPalette.ToStorageColor(color)));
     }
 
     private static bool TryGetMarkColor(Brush? brush, out Color color)
@@ -421,7 +421,7 @@ public partial class MainWindow
     {
         if (segment.SpoilerKey is null)
         {
-            AppendRuns(paragraph.Inlines, segment.Text, segment.Style, new SolidColorBrush(_currentInkColor), CreateBrush(segment.MarkColor));
+            AppendRuns(paragraph.Inlines, segment.Text, segment.Style, new SolidColorBrush(_currentInkColor), CreateMarkerBrush(segment.MarkColor));
             return;
         }
 
@@ -438,16 +438,16 @@ public partial class MainWindow
 
         var foreground = new SolidColorBrush(isOpen ? _currentInkColor : SpoilerHiddenColor);
         var background = isOpen
-            ? CreateBrush(segment.MarkColor) ?? new SolidColorBrush(SpoilerOpenColor)
+            ? CreateMarkerBrush(segment.MarkColor) ?? new SolidColorBrush(SpoilerOpenColor)
             : new SolidColorBrush(SpoilerHiddenColor);
 
         AppendRuns(span.Inlines, segment.Text, segment.Style, foreground, background);
         paragraph.Inlines.Add(span);
     }
 
-    private static Brush? CreateBrush(Color? color)
+    private Brush? CreateMarkerBrush(Color? color)
     {
-        return color is null ? null : new SolidColorBrush(color.Value);
+        return color is null ? null : new SolidColorBrush(GetMarkerDisplayColor(color.Value));
     }
 
     private static void AppendRuns(InlineCollection inlines, string text, TextRenderStyle style, Brush foreground, Brush? background)
@@ -903,7 +903,7 @@ public partial class MainWindow
 
     private void MarkButton_Click(object sender, RoutedEventArgs e)
     {
-        ApplyEditorBackground(_selectedMarkColor, L("Marked", "Отмечено", "Markiert"));
+        ApplyEditorBackground(GetMarkerDisplayColor(_selectedMarkColor), L("Marked", "Отмечено", "Markiert"));
     }
 
     private void ClearMarkButton_Click(object sender, RoutedEventArgs e)
@@ -935,7 +935,7 @@ public partial class MainWindow
         }
 
         _selectedMarkColor = color;
-        MarkColorSwatch.Background = new SolidColorBrush(color);
+        MarkColorSwatch.Background = new SolidColorBrush(GetMarkerDisplayColor(color));
         MarkColorPopup.IsOpen = false;
     }
 
