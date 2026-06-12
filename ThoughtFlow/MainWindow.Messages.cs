@@ -64,6 +64,7 @@ public partial class MainWindow
     private void SelectFile(FlowTextFile? file)
     {
         _activeFile = file;
+        UpdateFileTransferButtons();
         SearchBox.Text = string.Empty;
         RefreshMessages();
         _activeMessage = _visibleMessages.FirstOrDefault();

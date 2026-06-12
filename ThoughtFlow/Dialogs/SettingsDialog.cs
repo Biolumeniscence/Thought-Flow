@@ -527,7 +527,7 @@ public sealed class SettingsDialog : Window
         };
 
         actions.Children.Add(CreateButton(T("Cancel", "Отмена", "Abbrechen"), new SolidColorBrush(_theme.Ghost), new SolidColorBrush(_theme.Ink), (_, _) => DialogResult = false));
-        actions.Children.Add(CreateButton(T("Save", "Сохранить", "Speichern"), new SolidColorBrush(_theme.Accent), Brushes.White, (_, _) => DialogResult = true, new Thickness(10, 0, 0, 0)));
+        actions.Children.Add(CreateButton(T("Save", "Сохранить", "Speichern"), new SolidColorBrush(_theme.Accent), ThemeContrast.ForegroundOn(_theme.Accent, _theme), (_, _) => DialogResult = true, new Thickness(10, 0, 0, 0)));
         return actions;
     }
 

@@ -35,7 +35,7 @@ public partial class MainWindow
                 {
                     var fileName = MakeSafeFileName(file.Name, usedNames);
                     var path = Path.Combine(workspace.LocationPath, $"{fileName}.md");
-                    File.WriteAllText(path, BuildWorkspaceFileText(file));
+                    File.WriteAllText(path, TextExportService.BuildPlainText(file));
                 }
             }
             catch (Exception ex)
@@ -53,11 +53,6 @@ public partial class MainWindow
         var folderPath = MakeAvailableWorkspaceFolderPath(parentFolder, workspaceName, reservedWorkspaceNames, null, out actualName);
         Directory.CreateDirectory(folderPath);
         return folderPath;
-    }
-
-    private static string BuildWorkspaceFileText(FlowTextFile file)
-    {
-        return string.Join(Environment.NewLine + Environment.NewLine, file.Messages.Select(message => message.Body));
     }
 
     private static string MakeSafeFileName(string name, HashSet<string> usedNames)

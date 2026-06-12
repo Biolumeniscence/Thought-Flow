@@ -477,9 +477,13 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel>
-                        <DockPanel Margin="0,0,0,8">
-                            <TextBlock x:Name="FilesLabel" Text="Files" Foreground="{DynamicResource MutedInk}" FontSize="12" FontWeight="SemiBold"/>
-                            <Button x:Name="DeleteFileButton" Content="Delete file" DockPanel.Dock="Right" Width="116" MinHeight="28" Padding="8,4" Background="{DynamicResource Warm}" Click="DeleteFileButton_Click"/>
+                        <DockPanel Margin="0,0,0,8" LastChildFill="False">
+                            <TextBlock x:Name="FilesLabel" Text="Files" DockPanel.Dock="Left" Foreground="{DynamicResource MutedInk}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                <Button x:Name="ImportFileButton" Content="Import" Style="{StaticResource GhostButton}" MinWidth="74" MinHeight="28" Padding="8,4" Margin="0,0,8,0" Click="ImportFileButton_Click"/>
+                                <Button x:Name="ExportFileButton" Content="Export" Style="{StaticResource GhostButton}" MinWidth="74" MinHeight="28" Padding="8,4" Margin="0,0,8,0" Click="ExportFileButton_Click"/>
+                                <Button x:Name="DeleteFileButton" Content="Delete file" Width="116" MinHeight="28" Padding="8,4" Background="{DynamicResource Warm}" Click="DeleteFileButton_Click"/>
+                            </StackPanel>
                         </DockPanel>
                         <ListBox x:Name="FilesList"
                                  MinHeight="48"

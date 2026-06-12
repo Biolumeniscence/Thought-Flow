@@ -241,6 +241,10 @@ public partial class MainWindow
         DuplicateMessageButton.Content = L("Duplicate msg", "Дублировать", "Duplizieren");
         DeleteWorkspaceButton.Content = L("Delete workspace", "Удалить воркспейс", "Arbeitsbereich löschen");
         FilesLabel.Text = L("Files", "Файлы", "Dateien");
+        ImportFileButton.Content = L("Import", "Импорт", "Import");
+        ImportFileButton.ToolTip = L("Open import options", "Открыть варианты импорта", "Importoptionen öffnen");
+        ExportFileButton.Content = L("Export", "Экспорт", "Export");
+        ExportFileButton.ToolTip = L("Export the selected file as text", "Экспортировать выбранный файл как текст", "Ausgewählte Datei als Text exportieren");
         DeleteFileButton.Content = L("Delete file", "Удалить файл", "Datei löschen");
         NewFileLabel.Text = L("New file", "Новый файл", "Neue Datei");
         SendButton.Content = L("Send", "Отправить", "Senden");

@@ -76,6 +76,8 @@ public partial class MainWindow
         var menu = CreateContextMenu();
         menu.Items.Add(CreateMenuItem(L("Rename", "Переименовать", "Umbenennen"), RenameFileMenuItem_Click));
         menu.Items.Add(CreateMenuItem(L("Duplicate", "Дублировать", "Duplizieren"), DuplicateFileMenuItem_Click));
+        menu.Items.Add(CreateMenuItem(L("Import", "Импорт", "Import"), ImportFileMenuItem_Click));
+        menu.Items.Add(CreateMenuItem(L("Export", "Экспорт", "Export"), ExportFileMenuItem_Click));
         menu.Items.Add(CreateSeparator());
         menu.Items.Add(CreateMenuItem(L("Delete", "Удалить", "Löschen"), DeleteFileMenuItem_Click));
         return menu;
@@ -161,6 +163,22 @@ public partial class MainWindow
         if (GetContextFile(sender) is { } file)
         {
             DuplicateFile(file);
+        }
+    }
+
+    private void ImportFileMenuItem_Click(object sender, RoutedEventArgs e)
+    {
+        if (GetContextFile(sender) is { } file)
+        {
+            ShowImportModeDialog(file);
+        }
+    }
+
+    private void ExportFileMenuItem_Click(object sender, RoutedEventArgs e)
+    {
+        if (GetContextFile(sender) is { } file)
+        {
+            ExportTextFile(file);
         }
     }
 

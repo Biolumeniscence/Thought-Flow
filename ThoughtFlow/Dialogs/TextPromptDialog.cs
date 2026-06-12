@@ -7,14 +7,6 @@ namespace ThoughtFlow;
 
 public sealed class TextPromptDialog : Window
 {
-    private static readonly SolidColorBrush InkBrush = new(Color.FromRgb(35, 35, 35));
-    private static readonly SolidColorBrush MutedBrush = new(Color.FromRgb(108, 104, 97));
-    private static readonly SolidColorBrush PanelBrush = new(Color.FromRgb(255, 252, 247));
-    private static readonly SolidColorBrush LineBrush = new(Color.FromRgb(216, 208, 196));
-    private static readonly SolidColorBrush SideBrush = new(Color.FromRgb(37, 49, 55));
-    private static readonly SolidColorBrush AccentBrush = new(Color.FromRgb(49, 91, 122));
-    private static readonly SolidColorBrush GhostBrush = new(Color.FromRgb(233, 226, 216));
-
     private readonly TextBox _input = new();
     private readonly string _language;
     private readonly AppThemeOption _theme;
@@ -47,8 +39,8 @@ public sealed class TextPromptDialog : Window
 
         Content = new Border
         {
-            Background = new SolidColorBrush(theme.Panel),
-            BorderBrush = new SolidColorBrush(theme.Line),
+            Background = ThemeContrast.Brush(theme.Panel),
+            BorderBrush = ThemeContrast.Brush(theme.Line),
             BorderThickness = new Thickness(1),
             CornerRadius = new CornerRadius(10),
             Child = BuildContent(title, label, currentValue)
@@ -70,7 +62,7 @@ public sealed class TextPromptDialog : Window
         var root = new DockPanel();
         var header = new Border
         {
-            Background = SideBrush,
+            Background = ThemeContrast.Brush(_theme.Side),
             CornerRadius = new CornerRadius(10, 10, 0, 0),
             Padding = new Thickness(18, 15, 18, 14),
             Child = new StackPanel
@@ -80,14 +72,14 @@ public sealed class TextPromptDialog : Window
                     new TextBlock
                     {
                         Text = title,
-                        Foreground = Brushes.White,
+                        Foreground = ThemeContrast.ForegroundOn(_theme.Side, _theme),
                         FontSize = 20,
                         FontWeight = FontWeights.SemiBold
                     },
                     new TextBlock
                     {
                         Text = T("Give it a clear name for the sidebar.", "Дай понятное название для боковой панели.", "Gib einen klaren Namen für die Seitenleiste ein."),
-                        Foreground = new SolidColorBrush(Color.FromRgb(184, 196, 201)),
+                        Foreground = ThemeContrast.Brush(_theme.SideMuted),
                         Margin = new Thickness(0, 4, 0, 0)
                     }
                 }
@@ -100,10 +92,10 @@ public sealed class TextPromptDialog : Window
         _input.MinHeight = 38;
         _input.Margin = new Thickness(0, 7, 0, 18);
         _input.Padding = new Thickness(10);
-        _input.BorderBrush = LineBrush;
+        _input.BorderBrush = ThemeContrast.Brush(_theme.Line);
         _input.BorderThickness = new Thickness(1);
-        _input.Foreground = new SolidColorBrush(_theme.Ink);
-        _input.Background = new SolidColorBrush(_theme.Input);
+        _input.Foreground = ThemeContrast.Brush(_theme.Ink);
+        _input.Background = ThemeContrast.Brush(_theme.Input);
         _input.KeyDown += (_, e) =>
         {
             if (e.Key == Key.Enter)
@@ -120,7 +112,7 @@ public sealed class TextPromptDialog : Window
                 new TextBlock
                 {
                     Text = label,
-                    Foreground = MutedBrush,
+                    Foreground = ThemeContrast.Brush(_theme.Muted),
                     FontWeight = FontWeights.SemiBold
                 },
                 _input,
@@ -139,8 +131,17 @@ public sealed class TextPromptDialog : Window
             HorizontalAlignment = HorizontalAlignment.Right
         };
 
-        actions.Children.Add(CreateButton(T("Cancel", "Отмена", "Abbrechen"), GhostBrush, InkBrush, (_, _) => DialogResult = false));
-        actions.Children.Add(CreateButton(T("Save", "Сохранить", "Speichern"), AccentBrush, Brushes.White, (_, _) => DialogResult = true, new Thickness(10, 0, 0, 0)));
+        actions.Children.Add(CreateButton(
+            T("Cancel", "Отмена", "Abbrechen"),
+            ThemeContrast.Brush(_theme.Ghost),
+            ThemeContrast.ForegroundOn(_theme.Ghost, _theme),
+            (_, _) => DialogResult = false));
+        actions.Children.Add(CreateButton(
+            T("Save", "Сохранить", "Speichern"),
+            ThemeContrast.Brush(_theme.Accent),
+            ThemeContrast.ForegroundOn(_theme.Accent, _theme),
+            (_, _) => DialogResult = true,
+            new Thickness(10, 0, 0, 0)));
         return actions;
     }
 

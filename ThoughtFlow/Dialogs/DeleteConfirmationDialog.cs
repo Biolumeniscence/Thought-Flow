@@ -7,17 +7,12 @@ namespace ThoughtFlow;
 
 public sealed class DeleteConfirmationDialog : Window
 {
-    private static readonly SolidColorBrush InkBrush = new(Color.FromRgb(35, 35, 35));
-    private static readonly SolidColorBrush MutedBrush = new(Color.FromRgb(108, 104, 97));
-    private static readonly SolidColorBrush PanelBrush = new(Color.FromRgb(255, 252, 247));
-    private static readonly SolidColorBrush LineBrush = new(Color.FromRgb(216, 208, 196));
-    private static readonly SolidColorBrush SideBrush = new(Color.FromRgb(37, 49, 55));
-    private static readonly SolidColorBrush WarmBrush = new(Color.FromRgb(169, 95, 71));
-    private static readonly SolidColorBrush GhostBrush = new(Color.FromRgb(233, 226, 216));
+    private readonly AppThemeOption _theme;
     private readonly string _language;
 
     private DeleteConfirmationDialog(string itemType, string itemName, string detail, AppThemeOption theme, string language)
     {
+        _theme = theme;
         _language = language;
         Title = T($"Delete {itemType}", $"Удалить {itemType}", $"{itemType} löschen");
         Width = 430;
@@ -38,8 +33,8 @@ public sealed class DeleteConfirmationDialog : Window
 
         Content = new Border
         {
-            Background = new SolidColorBrush(theme.Panel),
-            BorderBrush = new SolidColorBrush(theme.Line),
+            Background = ThemeContrast.Brush(theme.Panel),
+            BorderBrush = ThemeContrast.Brush(theme.Line),
             BorderThickness = new Thickness(1),
             CornerRadius = new CornerRadius(10),
             Child = BuildContent(itemType, itemName, detail)
@@ -62,7 +57,7 @@ public sealed class DeleteConfirmationDialog : Window
 
         var header = new Border
         {
-            Background = SideBrush,
+            Background = ThemeContrast.Brush(_theme.Side),
             CornerRadius = new CornerRadius(10, 10, 0, 0),
             Padding = new Thickness(18, 15, 18, 14),
             Child = new StackPanel
@@ -72,14 +67,14 @@ public sealed class DeleteConfirmationDialog : Window
                     new TextBlock
                     {
                         Text = T($"Delete {itemType}?", $"Удалить {itemType}?", $"{itemType} löschen?"),
-                        Foreground = Brushes.White,
+                        Foreground = ThemeContrast.ForegroundOn(_theme.Side, _theme),
                         FontSize = 20,
                         FontWeight = FontWeights.SemiBold
                     },
                     new TextBlock
                     {
                         Text = T("This action needs confirmation.", "Это действие нужно подтвердить.", "Diese Aktion muss bestätigt werden."),
-                        Foreground = new SolidColorBrush(Color.FromRgb(184, 196, 201)),
+                        Foreground = ThemeContrast.Brush(_theme.SideMuted),
                         Margin = new Thickness(0, 4, 0, 0)
                     }
                 }
@@ -99,14 +94,14 @@ public sealed class DeleteConfirmationDialog : Window
                         $"Are you sure you want to delete {itemType} \"{itemName}\"?",
                         $"Точно удалить {itemType} \"{itemName}\"?",
                         $"{itemType} \"{itemName}\" wirklich löschen?"),
-                    Foreground = InkBrush,
+                    Foreground = ThemeContrast.Brush(_theme.Ink),
                     FontSize = 15,
                     TextWrapping = TextWrapping.Wrap
                 },
                 new TextBlock
                 {
                     Text = detail,
-                    Foreground = MutedBrush,
+                    Foreground = ThemeContrast.Brush(_theme.Muted),
                     TextWrapping = TextWrapping.Wrap,
                     Margin = new Thickness(0, 8, 0, 18)
                 },
@@ -126,8 +121,17 @@ public sealed class DeleteConfirmationDialog : Window
             HorizontalAlignment = HorizontalAlignment.Right
         };
 
-        actions.Children.Add(CreateButton(T("Cancel", "Отмена", "Abbrechen"), GhostBrush, InkBrush, (_, _) => DialogResult = false));
-        actions.Children.Add(CreateButton(T("Delete", "Удалить", "Löschen"), WarmBrush, Brushes.White, (_, _) => DialogResult = true, new Thickness(10, 0, 0, 0)));
+        actions.Children.Add(CreateButton(
+            T("Cancel", "Отмена", "Abbrechen"),
+            ThemeContrast.Brush(_theme.Ghost),
+            ThemeContrast.ForegroundOn(_theme.Ghost, _theme),
+            (_, _) => DialogResult = false));
+        actions.Children.Add(CreateButton(
+            T("Delete", "Удалить", "Löschen"),
+            ThemeContrast.Brush(_theme.Warm),
+            ThemeContrast.ForegroundOn(_theme.Warm, _theme),
+            (_, _) => DialogResult = true,
+            new Thickness(10, 0, 0, 0)));
         return actions;
     }
 
